@@ -20,3 +20,4 @@ outputs/
 *.npz
 *.parquet
 .cache/
+.idea/

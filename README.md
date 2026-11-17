@@ -32,7 +32,7 @@ For the Mojo GPU environment on your M2:
 ```bash
 # Install Pixi first: https://pixi.sh/
 cd gpu
-pixi install
+pixi install --all
 pixi run mojo --version
 ```
 

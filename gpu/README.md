@@ -4,7 +4,7 @@ This environment is specifically for **Apple silicon macOS**, not for the
 Linux GitHub Actions runners.
 
 ```bash
-pixi install
+pixi install --all
 pixi run mojo --version
 ```
 
@@ -22,9 +22,18 @@ on your M2. This starter intentionally ships without unverified Mojo source.
 
 ## Verified on this M2 (2026-11-16)
 
-- macOS 26.6.2, Xcode 26.3, pixi 0.65.0
-- `max==26.7` → `mojo --version` = **Mojo 1.2.0 (2016d0cd)**
-- `DeviceContext()` reports **Apple M2**, API **metal**; `has_accelerator()` = True
+- macOS 26.6.2, Xcode 26.3, Metal toolchain 17C7003j, pixi 0.84.2
+- `default` env: `max==26.7` → **Mojo 1.2.0 (2016d0cd)**, the latest stable
+- `nightly` env: **Mojo 1.3.0.dev2026111605 (ea4e6261)**
+- Both: `DeviceContext()` reports **Apple M2**, API **metal**, and a GPU kernel
+  compiles, launches and synchronizes
+
+```bash
+pixi install --all
+pixi run mojo file.mojo              # stable (use for lessons)
+pixi run -e nightly mojo file.mojo   # newest nightly
+pixi update -e nightly               # pull today's nightly
+```
 
 Mojo 1.x gotchas if you read older blog posts or examples:
 
