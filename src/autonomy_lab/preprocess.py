@@ -1,7 +1,8 @@
-"""Camera-frame normalization baseline for Lesson 01.
+"""NumPy reference for Lesson 01: camera-frame normalization.
 
-The reference is vectorized NumPy and the tiled version is intentionally
-a *CPU algorithm*. Neither is claimed to run a Mojo GPU kernel.
+These are the test oracles your Mojo implementations in `autonomy/` are
+checked against. The tiled version mirrors how work is split into tiles;
+it is a plain CPU algorithm, not GPU code.
 """
 from __future__ import annotations
 

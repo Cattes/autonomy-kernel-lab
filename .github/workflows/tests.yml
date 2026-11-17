@@ -1,4 +1,4 @@
-name: CPU reference tests
+name: Mojo and Python tests
 on:
   push:
     branches: [main]
@@ -6,13 +6,18 @@ on:
 
 jobs:
   tests:
+    # Linux CPU only: GPU tests skip themselves via has_accelerator().
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.3.3
-      - name: Install locked environment
-        run: uv sync --locked --extra dev
-      - name: Test CPU reference functions
-        run: uv run pytest -q
+      - uses: prefix-dev/setup-pixi@v0.11.3
+        with:
+          pixi-version: v0.84.2
+          locked: true
+          cache: true
+      - name: Mojo version
+        run: pixi run mojo-version
+      - name: Mojo tests, Python bindings and pytest
+        run: pixi run test
       - name: Validate static site builds
-        run: uv run zensical build --clean
+        run: pixi run docs-build

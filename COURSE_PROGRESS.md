@@ -1,12 +1,15 @@
 # Milestone tracker
 
+Each milestone is a Mojo module in `autonomy/` plus its GPU kernels, checked
+against a NumPy reference.
+
 Treat exit criteria as evidence-based: links to commits, benchmark output, screenshots,
 and short failure analysis. A lesson is complete when both the **visual** and the
 **technical** artifacts are ready.
 
 | Weeks | Milestone | State | Evidence |
 |---|---|---|---|
-| 1–3 | GPU basics / camera-frame processing | Not started | |
+| 1–3 | Mojo foundations / camera frames | Not started | |
 | 4–6 | Camera perception | Not started | |
 | 7–9 | Geometry, LiDAR, fusion and tracking | Not started | |
 | 10–12 | Motion prediction | Not started | |

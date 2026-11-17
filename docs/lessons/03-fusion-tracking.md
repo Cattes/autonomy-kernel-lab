@@ -1,19 +1,32 @@
 # Sensor geometry, LiDAR, fusion and tracking
 
-**Weeks 7–9 · Milestone contract (lesson content will be developed together)**
+**Weeks 7–9 · Mojo value types, ownership and data layout**
 
-This is the roadmap-level contract for the module. Its detailed teaching
-materials and exercises will be written after the preceding milestone.
+*Milestone contract: the full lesson is written when you reach it.*
 
 ## Visualization you will build
 
 3D point cloud, coordinate transforms, camera projection, BEV grid, and tracked agents.
 
-## Code / ML objective
+## Autonomy objective
 
 Transform points across LiDAR/ego/camera frames, rasterize BEV, then implement a tracker.
 
-## Mojo kernel track
+## Mojo you'll learn
+
+- **Operator overloading and value semantics:** `Vec3`, `Mat4` and `Pose` as
+  SIMD-backed structs with `+`, `-` and `*`, so geometry code reads like the
+  math. ([operators](https://mojolang.org/docs/manual/operators/))
+- **Ownership and argument conventions:** `imm`, `mut`, `var` and `^` transfers
+  when passing point clouds around without copying.
+  ([ownership](https://mojolang.org/docs/manual/values/ownership/))
+- **Spans and pointers:** views into large point buffers.
+  ([pointers](https://mojolang.org/docs/manual/pointers/))
+- **Data layout:** array-of-structs vs structure-of-arrays, measured.
+- Builds `autonomy/geometry.mojo`, `autonomy/lidar.mojo` (BEV grid) and
+  `autonomy/tracking.mojo` (Kalman filter, assignment).
+
+## GPU kernels
 
 **K5: point-cloud transform + projection.** Apply the LiDAR→ego→camera 4×4
 transforms and pinhole projection to every point. Try array-of-structs vs
@@ -26,7 +39,7 @@ grid resolution.
 
 Puzzles first: 14 (prefix sum), 27 (block-wide operations and histogram binning).
 
-See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+See the [Mojo learning path](../mojo-track.md) for the rules all Mojo code follows.
 
 ## Proof of completion
 
@@ -34,7 +47,8 @@ Reprojection error, track ID switches, and pose error on tiny scenarios.
 
 ## Required artifacts
 
-- A runnable Python reference and tests.
+- Mojo implementation in `autonomy/` with Mojo tests.
+- A NumPy reference, and pytest checks of the Mojo code against it.
 - A parameterized visual replay of the transformation or decision.
 - At least one sanity case and one intentionally broken case.
 - Quantitative quality and performance results with methodology.

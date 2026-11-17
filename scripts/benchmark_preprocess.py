@@ -1,7 +1,8 @@
 """Very small CPU baseline only — not a GPU benchmark.
 
-Run with `uv run python scripts/benchmark_preprocess.py`. For meaningful GPU measurements later,
-use device synchronization and separate transfer/kernel/end-to-end timing.
+Run with `pixi run bench`. Lesson 01 extends it with your Mojo versions
+(through the `autonomy_py` bindings). For GPU measurements, use device
+synchronization and time kernel-only and end-to-end separately.
 """
 from __future__ import annotations
 

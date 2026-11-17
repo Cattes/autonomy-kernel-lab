@@ -1,19 +1,27 @@
 # Simulation and evaluation
 
-**Weeks 19–21 · Milestone contract (lesson content will be developed together)**
+**Weeks 19–21 · Packaging and testing Mojo at scale**
 
-This is the roadmap-level contract for the module. Its detailed teaching
-materials and exercises will be written after the preceding milestone.
+*Milestone contract: the full lesson is written when you reach it.*
 
 ## Visualization you will build
 
 Scenario timeline, edge-case categories, heatmap of failures and near misses.
 
-## Code / ML objective
+## Autonomy objective
 
 Run a repeatable set of cut-in, occlusion, yielding and sensor degradation scenarios.
 
-## Mojo kernel track
+## Mojo you'll learn
+
+- **Packaging:** build `autonomy` into a `.mojopkg` with `mojo precompile`
+  and use it from a separate tool.
+  ([packages](https://mojolang.org/docs/manual/packages/))
+- **Deterministic randomness:** seeded RNG so every scenario replays exactly.
+- **Larger test suites:** scenario-based regression tests that run in CI.
+- Builds `autonomy/sim.mojo`: scenarios, collision checks, safety metrics.
+
+## GPU kernels
 
 **K11: batched scenario stepping.** Step many scenarios at once, one thread
 block per scenario, including collision checks. Measure how divergent
@@ -22,7 +30,7 @@ memory alignment affects it.
 
 Puzzles first: 35 (memory alignment).
 
-See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+See the [Mojo learning path](../mojo-track.md) for the rules all Mojo code follows.
 
 ## Proof of completion
 
@@ -30,7 +38,8 @@ Per-category outcomes; show one measurable regression and improvement.
 
 ## Required artifacts
 
-- A runnable Python reference and tests.
+- Mojo implementation in `autonomy/` with Mojo tests.
+- A NumPy reference, and pytest checks of the Mojo code against it.
 - A parameterized visual replay of the transformation or decision.
 - At least one sanity case and one intentionally broken case.
 - Quantitative quality and performance results with methodology.

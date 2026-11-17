@@ -1,19 +1,32 @@
 # Camera perception
 
-**Weeks 4–6 · Milestone contract (lesson content will be developed together)**
+**Weeks 4–6 · Mojo traits, generics and Python libraries from Mojo**
 
-This is the roadmap-level contract for the module. Its detailed teaching
-materials and exercises will be written after the preceding milestone.
+*Milestone contract: the full lesson is written when you reach it.*
 
 ## Visualization you will build
 
 Driving video with object boxes, segmentation masks, confidence, and model error views.
 
-## Code / ML objective
+## Autonomy objective
 
-Train or evaluate a small perception model against a reference; connect its preprocessing to Lesson 01.
+Train or evaluate a small perception model against a reference; feed it frames preprocessed by your Lesson 01 Mojo code.
 
-## Mojo kernel track
+## Mojo you'll learn
+
+- **Traits and generics:** define an image-operation trait so resize,
+  normalize and color conversion share one interface, generic over pixel
+  `DType`. ([traits](https://mojolang.org/docs/manual/traits/),
+  [parameters](https://mojolang.org/docs/manual/parameters/))
+- **Compile-time parameters:** image size and channel count as parameters,
+  so the compiler specializes the hot loops.
+- **Calling Python from Mojo:** load frames and run a pretrained PyTorch model
+  (on Apple's MPS backend) from Mojo, with Mojo doing preprocessing and
+  postprocessing. ([Python interop](https://mojolang.org/docs/manual/python/))
+- Builds `autonomy/camera.mojo` (resize, preprocessing) and
+  `autonomy/detection.mojo` (boxes, IoU, NMS).
+
+## GPU kernels
 
 **K3: fused resize + normalize + HWC→CHW.** Replace the Lesson 01 normalize with
 the full preprocessing a perception model needs, in one kernel. Compare
@@ -25,7 +38,7 @@ the CPU at first; measure where the crossover N is.
 
 Puzzles first: 11 (pooling), 12 (dot product), 13 (convolution), 16 (matmul).
 
-See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+See the [Mojo learning path](../mojo-track.md) for the rules all Mojo code follows.
 
 ## Proof of completion
 
@@ -33,7 +46,8 @@ mIoU or mAP, per-scene failures, preprocessing and inference latency.
 
 ## Required artifacts
 
-- A runnable Python reference and tests.
+- Mojo implementation in `autonomy/` with Mojo tests.
+- A NumPy reference, and pytest checks of the Mojo code against it.
 - A parameterized visual replay of the transformation or decision.
 - At least one sanity case and one intentionally broken case.
 - Quantitative quality and performance results with methodology.

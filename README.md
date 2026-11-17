@@ -1,97 +1,68 @@
 # Autonomy Kernel Lab
 
-**24 weeks of visual-first autonomous-driving ML and GPU programming, built incrementally on an M2 MacBook Air (16 GB).**
+**Learn Mojo and autonomous driving together: 24 weeks of building a self-driving
+software stack in Mojo, on an M2 MacBook Air (16 GB).**
 
-This is a self-study course *and* a growing research prototype. Each lesson adds code,
-a visualization, tests, a benchmark, and a written reflection. The destination is a
-small **closed-loop autonomous-driving simulator**, not road-ready vehicle software.
+Each module adds one subsystem of the driving stack (camera, LiDAR and
+tracking, prediction, planning, control, simulation) to the `autonomy/` Mojo
+package, teaches the Mojo language features it needs, and adds GPU kernels
+for its hot spots. Python checks the Mojo code against NumPy references and
+draws the visualizations. The destination is a small **closed-loop
+autonomous-driving simulator**, not road-ready vehicle software.
 
-## Start here (M2 / macOS)
+Course site: https://cattes.github.io/autonomy-kernel-lab/
 
-Prerequisites: Apple silicon Mac, macOS 15+, Xcode 16+ (with the Metal toolchain),
-Git, [uv](https://docs.astral.sh/uv/) and [Pixi](https://pixi.sh/) 0.84+.
-Both environments are pinned by lockfiles: `uv.lock` (Python 3.12, docs, tests)
-and `gpu/pixi.lock` (Mojo/MAX). You can start the docs and Python lessons
-before setting up Mojo.
+## Start here (Apple silicon Mac)
+
+Prerequisites: macOS 15+, Xcode 16+ with the Metal toolchain, Git, and
+[Pixi](https://pixi.sh/) 0.84+. Everything else (Mojo, Python, NumPy, pytest,
+docs tools) comes from one environment pinned by `pixi.lock`.
 
 ```bash
 git clone https://github.com/Cattes/autonomy-kernel-lab.git
 cd autonomy-kernel-lab
-uv sync --locked --extra dev     # creates .venv from uv.lock
-uv run zensical serve
+pixi install --all --locked
+pixi run check-gpu      # GPU: Apple M2 | API: metal
+pixi run test           # Mojo tests + Python checks of the Mojo code
+pixi run docs           # course site at http://127.0.0.1:8000
 ```
 
-Open http://127.0.0.1:8000 and browse the course.
+See [docs/setup.md](docs/setup.md) for details and troubleshooting, and
+[docs/mojo-track.md](docs/mojo-track.md) for what Mojo you learn when.
 
-In another terminal, run:
+## Repository layout
 
-```bash
-uv run pytest -q
-uv run python scripts/benchmark_preprocess.py
-```
+- `autonomy/` — **the Mojo driving stack you build**, one module per lesson
+  (`units.mojo` is a worked example)
+- `tests/mojo/` — Mojo tests (`pixi run test-mojo`)
+- `bindings/` — exposes `autonomy` to Python as `autonomy_py` (`pixi run build-py`)
+- `src/autonomy_lab/` — NumPy reference implementations and visualization helpers
+- `tests/` — pytest checks of the Mojo code against the references
+- `scripts/` — benchmarks, test runner, GPU check
+- `experiments/` — throwaway Mojo programs (tutorials, puzzles, probes)
+- `docs/` — course site: lessons, roadmap, interactive labs
+- `data/` — instructions for fetching small samples; datasets are never committed
+- `COURSE_PROGRESS.md` — milestones, kernel tracker, experiment log
+- `.github/workflows/` — CI (Mojo + Python tests on Linux CPU) and site publishing
 
-For the Mojo GPU environment on your M2:
+## Course site
 
-```bash
-cd gpu
-pixi install --all --locked              # stable + nightly, from pixi.lock
-pixi run mojo --version                  # Mojo 1.2.0 (stable, default)
-pixi run -e nightly mojo --version       # newest nightly
-```
-
-If the Metal toolchain is missing, see `docs/setup.md`. Follow the official
-GPU introduction for a first compiled GPU kernel:
-https://max.modular.com/stable/gpu/intro-tutorial/
-
-**Important:** The Python baseline and educational browser animations are included.
-The first production Mojo GPU kernel is an exercise to implement with the official
-tutorial; it is intentionally *not* represented as a finished working kernel.
-
-## Course site and code live together
-
-- `docs/` — published course pages, visual labs, milestone contracts
-- `docs/labs/` — standalone interactive HTML visualizations, no server dependency
-- `src/autonomy_lab/` — Python reference code shared between lessons
-- `tests/` — correctness tests runnable on Mac and in CI
-- `scripts/` — lightweight baseline experiments and benchmarks
-- `gpu/` — M2-specific Mojo/MAX environment and kernel exercises
-- `data/` — instructions for fetching small data samples; datasets are never committed
-- `COURSE_PROGRESS.md` — completed work and notes
-- `.github/workflows/` — CPU tests and automatic GitHub Pages publication
-
-## Publish with GitHub Pages
-
-1. Create an empty repository on GitHub called `autonomy-kernel-lab` (no README or .gitignore).
-2. From this extracted folder:
-   ```bash
-   git init
-   git add .
-   git commit -m "Create visual autonomy course"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/autonomy-kernel-lab.git
-   git push -u origin main
-   ```
-3. On GitHub select **Settings → Pages → Source: GitHub Actions**.
-4. Open the **Actions** tab, and once the docs workflow completes,
-   visit `https://YOUR_USERNAME.github.io/autonomy-kernel-lab/`.
-5. Update `zensical.toml` with your actual `site_url` if you want canonical URLs.
-
-Private repositories on GitHub Pages depend on your GitHub plan; read
-https://docs.github.com/en/pages/ before choosing visibility.
+Every push to `main` rebuilds the site from `docs/` and publishes it to
+GitHub Pages (`.github/workflows/docs.yml`).
 
 ## Our working agreement
 
 Each lesson is a small, reviewable PR:
 1. Read the lesson on the site and play with its visual lab.
-2. Implement a baseline, then the acceleration/ML enhancement.
-3. Run unit tests and record the results using fixed seeds and scenario IDs.
+2. Write the NumPy reference, then the Mojo implementation, then the GPU kernel.
+3. Run `pixi run test` and record results using fixed seeds and scenario IDs.
 4. Explain at least one failure you found.
 5. Check the lesson's exit criteria and merge into `main`.
 6. Only then start the next lesson.
 
-Use an issue titled `Lesson NN: <topic>` and a branch such as `lesson/01-gpu-basics`.
-GitHub Actions test the Python/docs part of each PR. **Apple GPU kernel tests must be run
-locally on the M2**, and cloud CUDA/Triton checks will be added only when needed.
+Use an issue titled `Lesson NN: <topic>` and a branch such as `lesson/01-mojo-foundations`.
+GitHub Actions run the Mojo and Python tests on Linux CPUs. **GPU kernel tests run
+locally on the M2**; they skip themselves in CI. Cloud NVIDIA checks are added only when needed.
 
 For each lesson, keep input artifacts small; do not commit licensed Waymo datasets,
 trained model checkpoints, credentials, or large binary captures.

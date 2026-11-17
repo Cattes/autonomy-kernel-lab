@@ -8,7 +8,10 @@ build/
 site/
 .DS_Store
 .ipynb_checkpoints/
-gpu/.pixi/
+.pixi/
+__mojocache__/
+*.mojopkg
+*.so
 data/raw/
 data/processed/
 outputs/

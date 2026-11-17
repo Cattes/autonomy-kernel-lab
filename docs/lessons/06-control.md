@@ -1,19 +1,28 @@
 # Vehicle control
 
-**Weeks 16–18 · Milestone contract (lesson content will be developed together)**
+**Weeks 16–18 · Mojo functions as values and benchmarking**
 
-This is the roadmap-level contract for the module. Its detailed teaching
-materials and exercises will be written after the preceding milestone.
+*Milestone contract: the full lesson is written when you reach it.*
 
 ## Visualization you will build
 
 Animated bicycle model, target vs actual path, steering and jerk timeseries.
 
-## Code / ML objective
+## Autonomy objective
 
 Implement a kinematic bicycle simulator, PID tracker, and optionally small MPC.
 
-## Mojo kernel track
+## Mojo you'll learn
+
+- **Functions as parameters and closures:** pass dynamics models and
+  controllers as compile-time function parameters.
+- **Numerical integration** (Euler vs RK4) written once, generic over the
+  model.
+- **`std.benchmark`:** proper micro-benchmarks for controller latency
+  budgets.
+- Builds `autonomy/control.mojo`: kinematic bicycle model, PID, MPPI.
+
+## GPU kernels
 
 **K10: sampling-based MPC (MPPI).** Roll out thousands of noisy control
 sequences through the kinematic bicycle model in parallel, score each one,
@@ -22,7 +31,7 @@ against the PID tracker at different sample counts.
 
 Puzzles first: 27 (block-wide reductions).
 
-See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+See the [Mojo learning path](../mojo-track.md) for the rules all Mojo code follows.
 
 ## Proof of completion
 
@@ -30,7 +39,8 @@ Cross-track error, heading error, acceleration and jerk.
 
 ## Required artifacts
 
-- A runnable Python reference and tests.
+- Mojo implementation in `autonomy/` with Mojo tests.
+- A NumPy reference, and pytest checks of the Mojo code against it.
 - A parameterized visual replay of the transformation or decision.
 - At least one sanity case and one intentionally broken case.
 - Quantitative quality and performance results with methodology.

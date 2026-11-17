@@ -1,102 +1,97 @@
 # Machine setup (Apple M2 / 16 GB RAM)
 
-This setup separates lightweight documentation/Python work from the Mojo/MAX GPU environment.
+One [Pixi](https://pixi.sh/) environment holds everything: Mojo/MAX, Python,
+NumPy, pytest and the docs builder. It is pinned by `pixi.lock`, so a fresh
+clone gets exactly the versions this course was tested with.
 
-## 1. Tools and prerequisites
+## 1. Prerequisites
 
-- Apple silicon M2, **macOS 15 or later**
-- **Xcode / Xcode Command Line Tools 16 or later**
-- Git, a browser, and [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you)
-- Pixi for the Mojo MAX toolchain
+- Apple silicon Mac, **macOS 15 or later**
+- **Xcode 16 or later**, with the Metal toolchain (for GPU code)
+- Git
+- **Pixi 0.84 or newer**: install from https://pixi.sh/, update with
+  `pixi self-update`. Older versions can't read the nightly MAX packages.
 
 Check:
 
 ```bash
 sw_vers
 xcodebuild -version
-uv --version
+xcodebuild -showComponent MetalToolchain   # Status should be: installed
 pixi --version
-git --version
 ```
 
-If your macOS installation needs the Metal toolchain:
+If the Metal toolchain is missing or outdated:
 
 ```bash
 xcodebuild -downloadComponent MetalToolchain
 ```
 
-Modular compatibility docs:
-https://max.modular.com/gpu/hardware-compatibility/
+Modular's [hardware compatibility page](https://max.modular.com/gpu/hardware-compatibility/)
+lists supported Apple chips (M1–M5).
 
-## 2. Install the Python reference code and site generator
-
-Install [uv](https://docs.astral.sh/uv/) (`brew install uv`). From the
-repository root:
+## 2. Install
 
 ```bash
-uv sync --locked --extra dev   # Python 3.12 + pinned deps from uv.lock
-uv run pytest -q
-uv run zensical serve
-```
-
-`--locked` fails instead of silently re-resolving if `uv.lock` is out of
-date. After changing dependencies in `pyproject.toml`, run `uv lock` and
-commit the updated `uv.lock`.
-
-Open `http://127.0.0.1:8000/` for the course website.
-
-## 3. Install Mojo/MAX separately
-
-Install Pixi (https://pixi.sh/), version **0.84 or newer**. Older versions
-cannot read the nightly MAX package metadata. Update with `pixi self-update`.
-
-```bash
-cd gpu
+git clone https://github.com/Cattes/autonomy-kernel-lab.git
+cd autonomy-kernel-lab
 pixi install --all --locked
-pixi run mojo --version             # stable: Mojo 1.2.0 (MAX 26.7)
-pixi run -e nightly mojo --version  # nightly: Mojo 1.3.0.devYYYYMMDDHH
 ```
 
-`gpu/pixi.toml` defines two environments:
+`--locked` fails instead of quietly installing different versions if
+`pixi.lock` is out of date. There are two environments:
 
-| Environment | Channel | Use it for |
+| Environment | Mojo | Use it for |
 |---|---|---|
-| `default` | `conda.modular.com/max` | Lesson work; matches the official docs (`max==26.7`) |
-| `nightly` | `conda.modular.com/max-nightly` | Trying the newest compiler and APIs |
+| `default` | 1.2.0 stable (MAX 26.7) | All lesson work; matches the official docs |
+| `nightly` | latest `1.3.0.dev` build | Trying the newest compiler and APIs: `pixi run -e nightly ...` |
 
-Refresh the nightly with `pixi update -e nightly`. When a new stable MAX
-ships, bump the `max` pin deliberately and commit the regenerated
-`pixi.lock`. Use the official GPU introduction:
-https://max.modular.com/stable/gpu/intro-tutorial/
+## 3. Verify
 
-Nightly builds can deprecate APIs the tutorial still uses (for example
-`ctx.name()` → `ctx.device().get_name()` in 1.3.0.dev). If a tutorial
-snippet warns or fails on nightly, try it on `default` first.
+```bash
+pixi run mojo-version   # Mojo 1.2.0
+pixi run check-gpu      # GPU: Apple M2 | API: metal
+pixi run test           # Mojo tests, then Python bindings + pytest
+pixi run docs           # course site at http://127.0.0.1:8000
+```
 
-We will implement the first real Mojo kernel as a lesson deliverable.
-A browser-based GPU animation is **not** proof that Mojo GPU code ran.
+## Everyday commands
 
-## 4. Resource limits (16 GB unified RAM)
+| Command | What it does |
+|---|---|
+| `pixi run test` | All Mojo tests (`tests/mojo/`) and all Python tests |
+| `pixi run test-mojo` | Only the Mojo tests |
+| `pixi run build-py` | Compile `bindings/autonomy_py.mojo` so Python can `import autonomy_py` |
+| `pixi run mojo run -I . file.mojo` | Run any Mojo file that imports `autonomy` |
+| `pixi run bench` | The preprocessing benchmark |
+| `pixi run docs` | Serve the course site locally |
+| `pixi shell` | A shell with `mojo`, `python` and `pytest` on the PATH |
+
+Changing dependencies: edit `pixi.toml`, run `pixi install --all`, and commit
+the updated `pixi.lock`. To try today's nightly, run `pixi update -e nightly`.
+When a new stable MAX ships, bump the `max` pin deliberately.
+
+## Resource limits (16 GB unified RAM)
 
 - Start with synthetic inputs and short (10–30 s) real scenes.
-- Only load one sensor modality at a time when datasets are large.
-- Downsample point clouds for exploration; keep an untouched source sample externally.
-- Treat 3D viewers and ML training as competing for unified memory.
-- Don't install CUDA on macOS; CUDA/Triton tests will use cloud NVIDIA later.
+- Load one sensor modality at a time when datasets are large.
+- Downsample point clouds for exploration; keep an untouched sample elsewhere.
+- 3D viewers, ML training and GPU kernels all share the same unified memory.
+- Don't install CUDA on macOS; NVIDIA-only experiments use a rented cloud GPU.
 
-## 5. Quick acceptance checklist
+## Troubleshooting
 
-- [x] `pytest -q` passes.
-- [x] Site launches via `zensical serve`.
-- [x] Both browser labs open.
-- [x] `pixi run mojo --version` runs on M2.
-- [x] Real GPU device discovered using official tutorial.
+- **`failed to run the pass manager` when running GPU code:** the Metal
+  toolchain is missing or mid-update. Check with
+  `xcodebuild -showComponent MetalToolchain`, re-run the download command
+  above, or retry after an update finishes.
+- **Code from a blog post doesn't compile:** it probably predates Mojo 1.0.
+  See the [Mojo 1.2 notes](mojo-track.md#mojo-12-notes).
+- **`import autonomy_py` fails in Python:** run `pixi run build-py` first.
+  `pixi run test` does this for you.
 
-Verified on 2026-11-16, Apple M2 / 16 GB, macOS 26.6.2, Xcode 26.3, Metal
-toolchain 17C7003j, Pixi 0.84.2, Python 3.14.3. Both Mojo environments
-report `Apple M2` with API `metal`, and both compile and run a GPU kernel.
+## Verified
 
-If a GPU kernel fails with `failed to run the pass manager`, check the Metal
-toolchain with `xcodebuild -showComponent MetalToolchain`. Re-run
-`xcodebuild -downloadComponent MetalToolchain` if it is missing, or retry
-after an update finishes.
+2026-11-16 on an Apple M2 / 16 GB, macOS 26.6.2, Xcode 26.3, Metal toolchain
+17C7003j, Pixi 0.84.2: both environments report `Apple M2` with API `metal`
+and compile and run GPU kernels; `pixi run test` passes.

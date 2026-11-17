@@ -2,15 +2,15 @@
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
+# Python side of the course: NumPy reference implementations (the test
+# oracles for your Mojo code), data loading and visualization helpers.
+# The environment itself is managed by pixi (see pixi.toml).
 [project]
 name = "autonomy-kernel-lab"
 version = "0.1.0"
-description = "Visualization-first autonomous-driving ML and GPU self-study course"
+description = "Python references and visualization for a Mojo + autonomous driving course"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.26,<3"]
-
-[project.optional-dependencies]
-dev = ["pytest>=8,<10", "zensical>=0.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

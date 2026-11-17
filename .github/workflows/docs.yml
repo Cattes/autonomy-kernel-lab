@@ -22,11 +22,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/configure-pages@v6
-      - uses: astral-sh/setup-uv@v10.3.3
-      - name: Install locked environment
-        run: uv sync --locked --extra dev
+      - uses: prefix-dev/setup-pixi@v0.11.3
+        with:
+          pixi-version: v0.84.2
+          locked: true
+          cache: true
       - name: Build static site
-        run: uv run zensical build --clean
+        run: pixi run docs-build
       - uses: actions/upload-pages-artifact@v5
         with:
           path: site

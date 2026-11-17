@@ -1,0 +1,47 @@
+[workspace]
+name = "autonomy-kernel-lab"
+description = "Learn Mojo and autonomous driving together, on an Apple silicon Mac"
+# Nightly MAX packages use metadata older pixi versions cannot parse.
+requires-pixi = ">=0.84"
+channels = ["https://conda.modular.com/max/", "conda-forge"]
+# osx-arm64: your M2 (CPU + Metal GPU). linux-64: CI (CPU only).
+platforms = ["osx-arm64", "linux-64"]
+
+[dependencies]
+python = "3.12.*"
+numpy = ">=1.26,<3"
+pytest = ">=8,<10"
+zensical = ">=0.1"
+
+[pypi-dependencies]
+# Python reference implementations, data loading and visualization helpers.
+autonomy-kernel-lab = { path = ".", editable = true }
+
+# Default environment: latest *stable* MAX/Mojo release (what the official
+# docs target). Use this for lesson work.
+[feature.stable.dependencies]
+max = "==26.7"
+
+# Optional bleeding-edge environment: pixi run -e nightly mojo --version
+# Refresh it to today's nightly with: pixi update -e nightly
+[feature.nightly]
+channels = [{ channel = "https://conda.modular.com/max-nightly/", priority = 10 }]
+
+[feature.nightly.dependencies]
+max = ">=26.8.0.dev0"
+
+[environments]
+default = ["stable"]
+nightly = ["nightly"]
+
+[tasks]
+mojo-version = "mojo --version"
+check-gpu = "mojo run -I . scripts/check_gpu.mojo"
+# Compile the Mojo -> Python extension module into build/autonomy_py.so
+build-py = { cmd = "mkdir -p build && mojo build -I . bindings/autonomy_py.mojo --emit shared-lib -o build/autonomy_py.so", inputs = ["autonomy/**/*.mojo", "bindings/*.mojo"], outputs = ["build/autonomy_py.so"] }
+test-mojo = "python scripts/run_mojo_tests.py"
+test-py = { cmd = "pytest -q", depends-on = ["build-py"] }
+test = { depends-on = ["test-mojo", "test-py"] }
+bench = { cmd = "python scripts/benchmark_preprocess.py", depends-on = ["build-py"] }
+docs = "zensical serve"
+docs-build = "zensical build --clean"
