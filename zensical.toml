@@ -1,0 +1,8 @@
+[project]
+site_name = "Autonomy Kernel Lab"
+site_description = "A visualization-first, 24-week autonomy ML and Mojo GPU course."
+docs_dir = "docs"
+site_dir = "site"
+use_directory_urls = false
+# After creating the GitHub repository, optionally set:
+site_url = "https://cattes.github.io/autonomy-kernel-lab/"

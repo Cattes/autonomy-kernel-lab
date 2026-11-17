@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LiDAR + Camera Fusion | Interactive Lab</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1420;--panel:#152030;--line:#2a394c;--text:#edf5ff;--muted:#a8b8cc;--cyan:#70daf3;--orange:#ffb46e;--green:#76dfae;--purple:#b59aff}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(ellipse at 20% 0%,#1b2d46 0%,#0d1420 55%);color:var(--text);font:14px/1.5 -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif}
+.wrap{max-width:1150px;margin:auto;padding:22px 18px 32px} .eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--cyan)}h1{font-size:29px;letter-spacing:-.7px;margin:5px 0 4px} .intro{color:var(--muted);margin:0 0 18px;max-width:880px}
+.stagebar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0}.stage{background:#182538;border:1px solid #304059;border-radius:11px;color:#bdcbe0;text-align:left;padding:12px;cursor:pointer;line-height:1.2}.stage small{display:block;color:#8ca0b5;margin-bottom:5px;font-size:10px;letter-spacing:.7px}.stage.active{border-color:var(--cyan);color:white;background:#19354b;box-shadow:inset 0 0 0 1px #3b87a0} .stage:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #7fdafa;outline-offset:2px}
+.views{display:grid;grid-template-columns:1fr 1fr;gap:12px}.view{background:#0f1927;border:1px solid var(--line);border-radius:13px;overflow:hidden;min-width:0}.viewtitle{padding:12px 14px 8px;font-weight:700;display:flex;align-items:center;justify-content:space-between}.sub{font-size:11px;color:#8faac4;font-weight:500}.view canvas{width:100%;height:350px;display:block} .hint{font-size:11px;color:#9cafc7;padding:0 14px 12px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:16px;background:#142132;border:1px solid var(--line);padding:18px;border-radius:13px;margin-top:13px}label{display:block;font-size:12px;font-weight:650;margin-bottom:7px}.controlhead{display:flex;align-items:center;justify-content:space-between}.controlhead span{color:var(--cyan);font-variant-numeric:tabular-nums}input[type=range]{width:100%;accent-color:#5fcbe8;cursor:pointer}.time{display:flex;gap:10px;align-items:center}.time input{flex:1}button.action{background:#263d54;color:#f1f9ff;border:1px solid #476379;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:650}.actions{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:12px}.stats{display:flex;gap:9px;flex-wrap:wrap}.pill{border:1px solid #38506a;background:#15293c;border-radius:8px;padding:8px 12px;font-size:12px}.pill b{color:#e8f9ff}.foot{color:#9fb4c7;font-size:12px;margin-top:17px}.legend{color:#aebed1;font-size:12px;display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}.legend i{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px}.description{background:#17293b;border-left:3px solid #6dcde9;padding:10px 13px;margin:12px 0 0;border-radius:0 8px 8px 0;color:#e1edfb}.description b{color:white}
+@media(max-width:750px){.stagebar{grid-template-columns:repeat(2,minmax(0,1fr))}.views,.controls{grid-template-columns:1fr}.wrap{padding:16px 12px}.view canvas{height:280px}h1{font-size:24px}}
+</style>
+</head><body>
+<div class="wrap">
+<div class="eyebrow">Autonomous Driving · Visual Lab 03</div>
+<h1>From LiDAR points to a fused scene</h1>
+<p class="intro">A small, fully synthetic lesson preview. Step through the sensor pipeline, introduce a calibration error, and see how misalignment changes the camera projection. Runs offline in your browser.</p>
+<div class="stagebar" role="group" aria-label="Choose visualization stage">
+ <button class="stage active" data-stage="0"><small>01 · INPUT</small>Raw LiDAR frame</button>
+ <button class="stage" data-stage="1"><small>02 · GEOMETRY</small>Transform to vehicle</button>
+ <button class="stage" data-stage="2"><small>03 · PROJECTION</small>Overlay camera view</button>
+ <button class="stage" data-stage="3"><small>04 · FUSION</small>Build a shared BEV</button>
+</div>
+<div class="views">
+ <section class="view"><div class="viewtitle">Bird's-eye view <span class="sub">X forward · Y left</span></div><canvas id="bev" aria-label="Animated top down scene with LiDAR points"></canvas><div class="hint">Blue dots = LiDAR returns; orange outlines = independently defined object positions.</div></section>
+ <section class="view"><div class="viewtitle">Front camera plane <span class="sub">Synthetic pinhole camera</span></div><canvas id="cam" aria-label="Synthetic camera with LiDAR projected points"></canvas><div class="hint">Projected blue dots should line up with the vehicle silhouettes when calibration is correct.</div></section>
+</div>
+<div class="description" id="desc" role="status"><b>Raw sensor frame:</b> LiDAR coordinates are local to the sensor, not the vehicle. Compare the cyan points to the orange object positions.</div>
+<div class="controls">
+ <div><div class="controlhead"><label for="yaw">Calibration yaw error</label><span id="yawText">+4.0°</span></div><input id="yaw" type="range" min="-10" max="10" value="4" step="0.5" /><div class="hint">A few degrees can shift a distant point significantly.</div></div>
+ <div><div class="controlhead"><label for="shift">Calibration lateral error</label><span id="shiftText">+0.40 m</span></div><input id="shift" type="range" min="-1.5" max="1.5" value="0.4" step="0.05" /><div class="hint">Perturb the estimated translation from LiDAR to vehicle.</div></div>
+ <div style="grid-column:1/-1"><label for="t">Time / moving scene</label><div class="time"><button class="action" id="play">▶ Play</button><input id="t" type="range" min="0" max="10" value="0" step="0.05"/><span id="tText" style="min-width:42px;text-align:right;color:var(--cyan)">0.0 s</span></div></div>
+</div>
+<div class="actions"><button class="action" id="perfect">Reset to perfect calibration</button><div class="stats"><div class="pill">Visible LiDAR points: <b id="visible">—</b></div><div class="pill">Camera reprojection RMSE: <b id="error">—</b></div></div></div>
+<div class="legend"><span><i style="background:#71d5f5"></i>LiDAR points</span><span><i style="background:#ffb46e"></i>Camera/reference objects</span><span><i style="background:#76dfae"></i>Sensor & vehicle origins</span></div>
+<p class="foot">Educational toy model, not actual Waymo footage or a validated sensor-fusion algorithm. Real pipelines must also handle sensor synchronization, lens distortion, extrinsic calibration, rolling shutter, ego-motion, occlusion, and uncertainty.</p>
+</div>
+<script>
+(()=>{
+  const root=document, bev=root.getElementById('bev'),cam=root.getElementById('cam');
+  const yawEl=root.getElementById('yaw'),shiftEl=root.getElementById('shift'),timeEl=root.getElementById('t');
+  let stage=0,playing=false,clock=0,last=0;
+  const trueY=0.095, trueT={x:0.75,y:0.3};
+  const deg=d=>d*Math.PI/180;
+  const rotate=(p,a)=>({x:p.x*Math.cos(a)-p.y*Math.sin(a),y:p.x*Math.sin(a)+p.y*Math.cos(a),z:p.z});
+  const toLocal=p=>{let q={x:p.x-trueT.x,y:p.y-trueT.y,z:p.z};return rotate(q,-trueY)};
+  const toVehicle=p=>{let q=rotate(p,trueY+deg(+yawEl.value));return {x:q.x+trueT.x,y:q.y+trueT.y+(+shiftEl.value),z:q.z}};
+  function objects(t){return [{id:'car-a',x:16-.17*t,y:1.7,l:4.1,w:2.1,h:1.65},{id:'car-b',x:25-.46*t,y:-3.9,l:4.4,w:2.15,h:1.75},{id:'pedestrian',x:12+.08*t,y:-5.9,l:.75,w:.75,h:1.85}]}
+  function cloud(t){const pts=[];const arr=objects(t);for(let i=0;i<arr.length;i++){let o=arr[i];for(let k=0;k<12;k++){for(let z=0;z<3;z++){let s=k/11;pts.push({x:o.x-o.l/2+s*o.l,y:o.y-o.w/2,z:.3+z*(o.h-.35)/2});pts.push({x:o.x-o.l/2+s*o.l,y:o.y+o.w/2,z:.3+z*(o.h-.35)/2});pts.push({x:o.x-o.l/2,y:o.y-o.w/2+s*o.w,z:.3+z*(o.h-.35)/2});pts.push({x:o.x+o.l/2,y:o.y-o.w/2+s*o.w,z:.3+z*(o.h-.35)/2});}}}
+   for(let k=0;k<95;k++){let x=3+k*.34;for(let side of [-1,1])pts.push({x,y:7.65*side,z:(k%6===0?.5:.1)});}
+   for(let k=0;k<100;k++){let x=5+k*.29;for(let side of [-1,1]) if(k%3===0)pts.push({x,y:10.5*side,z: .5+(k%5)*.58});}
+   return pts;
+  }
+  function setup(canvas){const css=canvas.getBoundingClientRect();let w=Math.max(css.width,200),h=Math.max(css.height,200),dpr=Math.min(window.devicePixelRatio||1,2);if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr)}let ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return {ctx,w,h};}
+  function text(ctx,str,x,y,color='#9eb3c8',size=11){ctx.fillStyle=color;ctx.font=`${size}px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif`;ctx.fillText(str,x,y);}
+  function drawBev(t,raw,aligned){const {ctx:c,w,h}=setup(bev);c.clearRect(0,0,w,h);c.fillStyle='#0e1927';c.fillRect(0,0,w,h);
+   const sc=Math.min((h-42)/38,(w-50)/27), map=p=>({x:w/2-p.y*sc,y:h-28-p.x*sc});
+   for(let y=-12;y<=12;y+=2){let a=map({x:0,y}),b=map({x:38,y});c.strokeStyle='#1b2a3e';c.lineWidth=1;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke()}
+   for(let x=0;x<=38;x+=5){let a=map({x,y:-13}),b=map({x,y:13});c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke()}
+   const line=(x1,y1,x2,y2,color,width=1,dash=[])=>{let a=map({x:x1,y:y1}),b=map({x:x2,y:y2});c.setLineDash(dash);c.strokeStyle=color;c.lineWidth=width;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();c.setLineDash([])};
+   line(-2,-7,38,-7,'#64758a',1.5);line(-2,7,38,7,'#64758a',1.5);line(-2,0,38,0,'#d2a15e',1,[7,8]);
+   objects(t).forEach(o=>{const a=map({x:o.x-o.l/2,y:o.y+o.w/2}),b=map({x:o.x+o.l/2,y:o.y-o.w/2});c.fillStyle='#ffb46e15';c.strokeStyle='#ffb46e';c.lineWidth=1.5;c.fillRect(a.x,b.y,b.x-a.x,a.y-b.y);c.strokeRect(a.x,b.y,b.x-a.x,a.y-b.y)});
+   if(stage===3){const bins=new Set();aligned.forEach(p=>{bins.add(Math.round(p.x/.8)+','+Math.round(p.y/.8))});c.fillStyle='#4bdcab30';for(let key of bins){let [x,y]=key.split(',').map(Number),q=map({x:.8*x,y:.8*y});c.fillRect(q.x-4,q.y-4,8,8)}}
+   const shown=stage===0?raw:aligned;c.fillStyle='#70daf3';for(let i=0;i<shown.length;i++){const q=map(shown[i]);if(q.y>0&&q.y<h&&q.x>0&&q.x<w){c.globalAlpha=.7;c.fillRect(q.x-1,q.y-1,2,2)}}c.globalAlpha=1;
+   let ego=map({x:0,y:0});c.fillStyle='#76dfae';c.strokeStyle='#a4ffe1';c.lineWidth=2;c.fillRect(ego.x-10,ego.y-10,20,20);c.strokeRect(ego.x-10,ego.y-10,20,20);text(c,'EGO',ego.x+12,ego.y+3,'#8af0c1');
+   let sensor=map(trueT);c.beginPath();c.fillStyle='#76dfae';c.arc(sensor.x,sensor.y,4,0,Math.PI*2);c.fill();let camera=map({x:1.7,y:0});c.fillStyle='#cfb2ff';c.beginPath();c.arc(camera.x,camera.y,4,0,Math.PI*2);c.fill();
+   if(stage>=2){line(1.7,0,30,-12,'#927fcf99',1,[5,5]);line(1.7,0,30,12,'#927fcf99',1,[5,5])}
+   text(c,stage===0?'LiDAR-local coordinates (unregistered)':'Vehicle-frame coordinates',12,19,'#bcdbed');
+   text(c,'Forward +X ↑',12,h-12,'#95a5b9');
+  }
+  function project(p,w,h){const fx=Math.max(240,w*.73),dx=p.x-1.7;if(dx<=1)return null;return {u:w*.5-fx*p.y/dx,v:h*.405-fx*(p.z-1.6)/dx,depth:dx}}
+  function drawCam(t,pts){const {ctx:c,w,h}=setup(cam);c.clearRect(0,0,w,h);
+   const sky=c.createLinearGradient(0,0,0,h);sky.addColorStop(0,'#29435b');sky.addColorStop(.45,'#456276');sky.addColorStop(.46,'#24394b');sky.addColorStop(1,'#1b2638');c.fillStyle=sky;c.fillRect(0,0,w,h);
+   const horizon=h*.405;c.fillStyle='#314154';c.beginPath();c.moveTo(w*.41,horizon);c.lineTo(w*.59,horizon);c.lineTo(w*.99,h);c.lineTo(w*.01,h);c.closePath();c.fill();
+   c.strokeStyle='#8591a0';c.lineWidth=2;c.beginPath();c.moveTo(w*.36,horizon);c.lineTo(w*.01,h);c.moveTo(w*.64,horizon);c.lineTo(w*.99,h);c.stroke();
+   c.setLineDash([14,16]);c.strokeStyle='#c3a35b';c.lineWidth=2;c.beginPath();c.moveTo(w*.5,horizon);c.lineTo(w*.5,h);c.stroke();c.setLineDash([]);
+   objects(t).forEach(o=>{let corners=[];for(let x of [o.x-o.l/2,o.x+o.l/2])for(let y of [o.y-o.w/2,o.y+o.w/2])for(let z of [.05,o.h]){let p=project({x,y,z},w,h);if(p)corners.push(p)}if(corners.length){let mnx=Math.min(...corners.map(p=>p.u)),mxx=Math.max(...corners.map(p=>p.u)),mny=Math.min(...corners.map(p=>p.v)),mxy=Math.max(...corners.map(p=>p.v));c.fillStyle='#f2a86e35';c.strokeStyle='#ffb46e';c.lineWidth=2;c.fillRect(mnx,mny,mxx-mnx,mxy-mny);c.strokeRect(mnx,mny,mxx-mnx,mxy-mny);text(c,o.id,mnx,mny-5,'#ffd4ad',11)}});
+   if(stage>=2){let n=0,err=0;let local=pts.map(toLocal),aligned=local.map(toVehicle);aligned.forEach((p,i)=>{let pix=project(p,w,h),gt=project(pts[i],w,h);if(pix&&gt&&gt.u>=0&&gt.u<=w&&gt.v>=0&&gt.v<=h){let d=Math.hypot(pix.u-gt.u,pix.v-gt.v);err+=d*d;n++;if(pix.u>=0&&pix.u<=w&&pix.v>=0&&pix.v<=h){let r=pix.depth<15?2:1.3;c.globalAlpha=.82;c.fillStyle='#70daf3';c.beginPath();c.arc(pix.u,pix.v,r,0,Math.PI*2);c.fill()}}});c.globalAlpha=1;root.getElementById('visible').textContent=n;root.getElementById('error').textContent=n?Math.sqrt(err/n).toFixed(1)+' px':'—';}
+   else{root.getElementById('visible').textContent='—';root.getElementById('error').textContent='—';}
+   if(stage<2){c.fillStyle='#0c162abf';c.fillRect(18,h*.38,w-36,66);text(c,'Camera projection appears in Step 03',w*.5-125,h*.38+27,'#d8e5f5',13);text(c,'Select the next stage to enable it.',w*.5-113,h*.38+47,'#a5bfd6',11)}
+   text(c,`t = ${t.toFixed(1)} s  •  synthetic camera view`,12,h-13,'#c8d9ee');
+  }
+  const descriptions=[
+    '<b>Raw sensor frame:</b> LiDAR coordinates are local to the sensor, not the vehicle. Compare the cyan points to the orange reference objects.',
+    '<b>Vehicle-frame transform:</b> Apply an estimated rotation and translation. Change the calibration sliders to see spatial misalignment.',
+    '<b>Camera projection:</b> Project transformed 3D points through a pinhole camera. Pixel reprojection error quantifies the registration mistake.',
+    '<b>Shared BEV:</b> Use the aligned geometry to create a simple occupancy view; combine that with independently defined object positions.'
+  ];
+  function render(){const t=+timeEl.value,pts=cloud(t),local=pts.map(toLocal);drawBev(t,local,local.map(toVehicle));drawCam(t,pts);root.getElementById('tText').textContent=t.toFixed(1)+' s';root.getElementById('yawText').textContent=(+yawEl.value>=0?'+':'')+(+yawEl.value).toFixed(1)+'°';root.getElementById('shiftText').textContent=(+shiftEl.value>=0?'+':'')+(+shiftEl.value).toFixed(2)+' m';}
+  root.querySelectorAll('.stage').forEach(el=>el.addEventListener('click',()=>{stage=+el.dataset.stage;root.querySelectorAll('.stage').forEach(x=>x.classList.toggle('active',x===el));root.getElementById('desc').innerHTML=descriptions[stage];render()}));
+  [yawEl,shiftEl,timeEl].forEach(el=>el.addEventListener('input',render));
+  root.getElementById('perfect').addEventListener('click',()=>{yawEl.value='0';shiftEl.value='0';render()});
+  root.getElementById('play').addEventListener('click',()=>{playing=!playing;root.getElementById('play').textContent=playing?'❚❚ Pause':'▶ Play';last=0;if(playing)requestAnimationFrame(tick)});
+  function tick(ts){if(!playing)return;if(last)timeEl.value=(+timeEl.value+(ts-last)/1000)%10;last=ts;render();requestAnimationFrame(tick)}
+  window.addEventListener('resize',render);render();
+})();
+</script>
+</body></html>

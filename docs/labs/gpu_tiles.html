@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GPU Tile Explorer | Autonomy Kernel Lab</title>
+<style>
+  :root { color-scheme: dark; --bg:#0a111e; --panel:#152235; --border:#2b3d56; --ink:#eff5ff; --muted:#afbed2; --blue:#75d7f2; --green:#78e2b2; --orange:#ffc27e; }
+  *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0%,#1a334d 0%,#0a111e 65%);color:var(--ink);font:14px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif;min-height:100vh}
+  main{max-width:1100px;margin:0 auto;padding:34px 22px 58px}h1{font-size:clamp(26px,4vw,38px);letter-spacing:-.03em;margin:0 0 5px}p{color:var(--muted)}.eyebrow{color:#72d1ed;font-size:11px;text-transform:uppercase;letter-spacing:.16em;font-weight:700}.subhead{margin:3px 0 21px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:15px;min-width:0}.title{font-size:13px;color:#e7f3ff;font-weight:700;margin-bottom:9px}.tiny{color:#9eb0c4;font-size:11px}canvas{width:100%;height:auto;aspect-ratio:2/1;display:block;border:1px solid #30465b;border-radius:10px;background:#0d1a2b}.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:15px 0}.controls .panel{padding:14px 15px}label{display:block;color:#d5e8f7;font-weight:650;margin:0 0 7px;font-size:12px}select,input{width:100%;background:#223750;color:white;border:1px solid #52718a;border-radius:8px;padding:8px}input{accent-color:var(--blue);cursor:pointer}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}button{padding:10px 18px;border-radius:10px;background:#27445d;color:#eefbff;border:1px solid #496a83;cursor:pointer;font-weight:700}button.primary{background:#1c6d81;border-color:#63bfd2}button:hover{filter:brightness(1.15)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{background:#101e30;border:1px solid var(--border);border-radius:10px;padding:11px}.value{font-size:22px;font-weight:760;font-variant-numeric:tabular-nums}.meta{font-size:11px;color:#aabed1}.explain{padding:14px 16px;border-radius:10px;background:#132c39;border-left:4px solid #61c9e4;margin-top:15px}.explain strong{color:#d6f8ff}.legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:12px}.dot{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:middle;margin-right:5px}footer{color:#9aafc2;font-size:12px;margin-top:25px}.readout{font:12px/1.7 ui-monospace,SFMono-Regular,monospace;color:#cbd9ec;overflow-wrap:anywhere}.readout span{color:#79e6b6}@media(max-width:780px){.cols{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Autonomy Kernel Lab · Lesson 01 · Conceptual animation</div>
+  <h1>How do GPU threads process a camera image?</h1>
+  <p class="subhead">Step through a tiny <b>32 × 16 × 1</b> image. Change the number of lanes per group and compare adjacent versus strided memory reads. This is a learning visualization, <b>not</b> real GPU profiling.</p>
+  <div class="cols">
+    <section class="panel"><div class="title">Sensor buffer · unsigned 8-bit pixels</div><canvas id="source" width="640" height="320" aria-label="Raw synthetic grayscale sensor frame"></canvas><p class="tiny">The golden outline marks pixel addresses read by the current work group.</p></section>
+    <section class="panel"><div class="title">Normalized output · floating point [0, 1]</div><canvas id="target" width="640" height="320" aria-label="Normalized output pixels"></canvas><p class="tiny">Cyan blocks were processed. Dark blocks have not been written yet.</p></section>
+  </div>
+  <div class="controls">
+    <section class="panel"><label for="width">Threads / simulated group</label><select id="width"><option value="4">4 lanes</option><option selected value="8">8 lanes</option><option value="16">16 lanes</option><option value="32">32 lanes</option></select></section>
+    <section class="panel"><label for="pattern">Memory access pattern</label><select id="pattern"><option value="contiguous">Adjacent pixels</option><option value="strided">Stride = 4 pixels</option></select></section>
+    <section class="panel"><label for="speed">Animation speed: <span id="speedText">5 groups/s</span></label><input id="speed" type="range" min="1" max="18" value="5"></section>
+  </div>
+  <div class="buttons"><button class="primary" id="play">▶ Play</button><button id="step">Step one group</button><button id="reset">↺ Reset</button></div>
+  <div class="stats">
+    <div class="stat"><div class="value" id="groups">0 / 64</div><div class="meta">Groups processed</div></div>
+    <div class="stat"><div class="value" id="pixels">0 / 512</div><div class="meta">Pixels written</div></div>
+    <div class="stat"><div class="value" id="span">—</div><div class="meta">Current address span</div></div>
+    <div class="stat"><div class="value" id="density">—</div><div class="meta">Active bytes / span</div></div>
+  </div>
+  <div class="explain"><strong id="concept">What to notice:</strong> <span id="explain">Adjacent lanes reading adjacent locations usually make memory accesses easier to combine. Experiment with the stride to see how a group covers a larger span of addresses.</span><div class="readout" id="addresses">Current addresses: <span>—</span></div></div>
+  <div class="legend"><span><i class="dot" style="background:#ffc27e"></i>Reads this step</span><span><i class="dot" style="background:#75d7f2"></i>Already normalized</span><span><i class="dot" style="background:#283a4f"></i>Unwritten output</span></div>
+  <footer>Math: output[p] = float32(input[p]) / 255. The span ratio is an educational proxy, not a GPU cache-line or memory-transaction metric. Real timings must come from a running compiled Mojo kernel with synchronization and device measurements.</footer>
+</main>
+<script>
+(()=>{
+  const W=32,H=16,N=W*H,src=document.getElementById('source'),dst=document.getElementById('target');
+  const S=src.getContext('2d'),T=dst.getContext('2d');
+  const width=document.getElementById('width'),pattern=document.getElementById('pattern'),speed=document.getElementById('speed');
+  const source=Array.from({length:N},(_,p)=>Math.max(0,Math.min(255,Math.round(35+150*(p%W)/(W-1)+60*Math.sin(Math.floor(p/W)*.5)))));
+  let groups=[],cursor=0,done=new Uint8Array(N),current=[],playing=false,last=0,elapsed=0;
+  function buildGroups(){
+    let lanes=+width.value,mode=pattern.value;groups=[];
+    if(mode==='contiguous'){
+      for(let k=0;k<N;k+=lanes)groups.push(Array.from({length:Math.min(lanes,N-k)},(_,j)=>k+j));
+    }else{
+      // Each group has `lanes` adjacent lane IDs but visits addresses spaced 4 apart.
+      for(let phase=0;phase<4;phase++)for(let k=phase;k<N;k+=4*lanes){
+        let group=[];for(let j=0;j<lanes;j++){let p=k+4*j;if(p<N)group.push(p)}
+        if(group.length)groups.push(group);
+      }
+    }
+  }
+  function draw(c,isOutput){
+    let cw=c.canvas.width/W,ch=c.canvas.height/H;
+    c.clearRect(0,0,c.canvas.width,c.canvas.height);
+    for(let p=0;p<N;p++){
+      let x=p%W,y=Math.floor(p/W),v=source[p],isDone=done[p];
+      if(isOutput){c.fillStyle=isDone?`rgb(${Math.round(v*.18)},${Math.round(70+v*.52)},${Math.round(95+v*.62)})`:'#223247'}
+      else{c.fillStyle=`rgb(${Math.round(v*.8)},${Math.round(v*.85)},${v})`}
+      c.fillRect(x*cw+1,y*ch+1,cw-2,ch-2);
+    }
+    c.fillStyle='#ffc27e';
+    for(let p of current){let x=p%W,y=Math.floor(p/W);c.lineWidth=3;c.strokeStyle='#ffc27e';c.strokeRect(x*cw+2,y*ch+2,cw-4,ch-4)}
+  }
+  function render(){
+    draw(S,false);draw(T,true);
+    document.getElementById('groups').textContent=`${cursor} / ${groups.length}`;
+    let processed=done.reduce((a,b)=>a+b,0);document.getElementById('pixels').textContent=`${processed} / ${N}`;
+    let span=current.length?Math.max(...current)-Math.min(...current)+1:0;
+    document.getElementById('span').textContent=span?span+' px':'—';
+    document.getElementById('density').textContent=span?Math.round(100*current.length/span)+'%':'—';
+    document.getElementById('addresses').innerHTML='Current addresses: <span>'+(current.length?current.join(', '):'—')+'</span>';
+    let strided=pattern.value==='strided';
+    document.getElementById('explain').textContent=strided?'The lanes are intentionally spaced four addresses apart. Their address span widens; this can cause more memory transactions in real GPUs, depending on alignment, hardware, and cache layout.':'The lanes read adjacent addresses, so the group covers a compact contiguous span. This often helps memory coalescing.';
+  }
+  function step(){
+    if(cursor>=groups.length){playing=false;document.getElementById('play').textContent='▶ Play';return}
+    current=groups[cursor++];for(let p of current)done[p]=1;render();
+    if(cursor>=groups.length){playing=false;document.getElementById('play').textContent='▶ Play'}
+  }
+  function reset(){playing=false;document.getElementById('play').textContent='▶ Play';buildGroups();cursor=0;done.fill(0);current=[];last=0;elapsed=0;render()}
+  function tick(ts){if(!playing)return;if(!last)last=ts;elapsed+=ts-last;last=ts;let delay=1000/(+speed.value);
+    while(elapsed>=delay&&playing){step();elapsed-=delay}if(playing)requestAnimationFrame(tick)
+  }
+  width.addEventListener('change',reset);pattern.addEventListener('change',reset);
+  speed.addEventListener('input',()=>document.getElementById('speedText').textContent=speed.value+' groups/s');
+  document.getElementById('reset').addEventListener('click',reset);
+  document.getElementById('step').addEventListener('click',step);
+  document.getElementById('play').addEventListener('click',()=>{if(cursor>=groups.length)reset();playing=!playing;document.getElementById('play').textContent=playing?'❚❚ Pause':'▶ Play';last=0;if(playing)requestAnimationFrame(tick)});
+  reset();
+})();
+</script>
+</body></html>
