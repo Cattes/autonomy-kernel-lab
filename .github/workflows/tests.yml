@@ -9,12 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-      - name: Install project
-        run: python -m pip install -e '.[dev]'
+      - uses: astral-sh/setup-uv@v10.3.3
+      - name: Install locked environment
+        run: uv sync --locked --extra dev
       - name: Test CPU reference functions
-        run: pytest -q
+        run: uv run pytest -q
       - name: Validate static site builds
-        run: zensical build --clean
+        run: uv run zensical build --clean

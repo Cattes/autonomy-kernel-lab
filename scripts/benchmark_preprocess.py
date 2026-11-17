@@ -1,6 +1,6 @@
 """Very small CPU baseline only — not a GPU benchmark.
 
-Run after `python -m pip install -e .`. For meaningful GPU measurements later,
+Run with `uv run python scripts/benchmark_preprocess.py`. For meaningful GPU measurements later,
 use device synchronization and separate transfer/kernel/end-to-end timing.
 """
 from __future__ import annotations

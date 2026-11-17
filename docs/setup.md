@@ -6,7 +6,7 @@ This setup separates lightweight documentation/Python work from the Mojo/MAX GPU
 
 - Apple silicon M2, **macOS 15 or later**
 - **Xcode / Xcode Command Line Tools 16 or later**
-- Python 3.11+, Git and a browser
+- Git, a browser, and [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you)
 - Pixi for the Mojo MAX toolchain
 
 Check:
@@ -14,7 +14,8 @@ Check:
 ```bash
 sw_vers
 xcodebuild -version
-python3 --version
+uv --version
+pixi --version
 git --version
 ```
 
@@ -29,15 +30,18 @@ https://max.modular.com/gpu/hardware-compatibility/
 
 ## 2. Install the Python reference code and site generator
 
-From the repository root:
+Install [uv](https://docs.astral.sh/uv/) (`brew install uv`). From the
+repository root:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[dev]"
-pytest -q
-zensical serve
+uv sync --locked --extra dev   # Python 3.12 + pinned deps from uv.lock
+uv run pytest -q
+uv run zensical serve
 ```
+
+`--locked` fails instead of silently re-resolving if `uv.lock` is out of
+date. After changing dependencies in `pyproject.toml`, run `uv lock` and
+commit the updated `uv.lock`.
 
 Open `http://127.0.0.1:8000/` for the course website.
 
@@ -48,7 +52,7 @@ cannot read the nightly MAX package metadata. Update with `pixi self-update`.
 
 ```bash
 cd gpu
-pixi install --all
+pixi install --all --locked
 pixi run mojo --version             # stable: Mojo 1.2.0 (MAX 26.7)
 pixi run -e nightly mojo --version  # nightly: Mojo 1.3.0.devYYYYMMDDHH
 ```

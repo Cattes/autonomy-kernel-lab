@@ -4,7 +4,7 @@ This environment is specifically for **Apple silicon macOS**, not for the
 Linux GitHub Actions runners.
 
 ```bash
-pixi install --all
+pixi install --all --locked
 pixi run mojo --version
 ```
 
@@ -29,7 +29,7 @@ on your M2. This starter intentionally ships without unverified Mojo source.
   compiles, launches and synchronizes
 
 ```bash
-pixi install --all
+pixi install --all --locked
 pixi run mojo file.mojo              # stable (use for lessons)
 pixi run -e nightly mojo file.mojo   # newest nightly
 pixi update -e nightly               # pull today's nightly

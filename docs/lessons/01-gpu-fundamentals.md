@@ -26,8 +26,8 @@ You'll compare a NumPy reference and a deliberately tiled CPU implementation
 before writing a real Mojo GPU kernel.
 
 ```bash
-pytest -q
-python scripts/benchmark_preprocess.py
+uv run pytest -q
+uv run python scripts/benchmark_preprocess.py
 ```
 
 Inspect `src/autonomy_lab/preprocess.py` and tests. Add one new test for

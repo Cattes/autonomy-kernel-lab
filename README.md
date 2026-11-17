@@ -8,32 +8,35 @@ small **closed-loop autonomous-driving simulator**, not road-ready vehicle softw
 
 ## Start here (M2 / macOS)
 
-Prerequisites: Git, Python 3.11+, macOS 15+, Xcode/Command Line Tools 16+, and Pixi
-for Mojo. You can start the docs and Python lessons before setting up Mojo.
+Prerequisites: Apple silicon Mac, macOS 15+, Xcode 16+ (with the Metal toolchain),
+Git, [uv](https://docs.astral.sh/uv/) and [Pixi](https://pixi.sh/) 0.84+.
+Both environments are pinned by lockfiles: `uv.lock` (Python 3.12, docs, tests)
+and `gpu/pixi.lock` (Mojo/MAX). You can start the docs and Python lessons
+before setting up Mojo.
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[dev]"
-zensical serve
+git clone https://github.com/Cattes/autonomy-kernel-lab.git
+cd autonomy-kernel-lab
+uv sync --locked --extra dev     # creates .venv from uv.lock
+uv run zensical serve
 ```
 
 Open http://127.0.0.1:8000 and browse the course.
 
-In another terminal (activate `.venv` again), run:
+In another terminal, run:
 
 ```bash
-pytest -q
-python scripts/benchmark_preprocess.py
+uv run pytest -q
+uv run python scripts/benchmark_preprocess.py
 ```
 
 For the Mojo GPU environment on your M2:
 
 ```bash
-# Install Pixi first: https://pixi.sh/
 cd gpu
-pixi install --all
-pixi run mojo --version
+pixi install --all --locked              # stable + nightly, from pixi.lock
+pixi run mojo --version                  # Mojo 1.2.0 (stable, default)
+pixi run -e nightly mojo --version       # newest nightly
 ```
 
 If the Metal toolchain is missing, see `docs/setup.md`. Follow the official
