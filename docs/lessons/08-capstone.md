@@ -13,6 +13,16 @@ Synchronized perception → prediction → planner → controller replay with a 
 
 Integrate simplified pipeline and optimize a profiled GPU bottleneck.
 
+## Mojo kernel track
+
+**K12: fuse and keep data on the GPU.** Profile the integrated pipeline, take
+the two hottest adjacent stages, fuse them or chain them without copying
+back to the host, and report the end-to-end gain against your earlier
+kernels. Apple GPUs have no Mojo profiler, so use careful timing. Optionally
+repeat the experiment on a rented NVIDIA GPU with its profiler.
+
+See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+
 ## Proof of completion
 
 Baseline vs optimized p50/p95; quality and safety metrics; clear limitations.

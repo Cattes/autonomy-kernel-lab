@@ -13,6 +13,17 @@ Animated bicycle model, target vs actual path, steering and jerk timeseries.
 
 Implement a kinematic bicycle simulator, PID tracker, and optionally small MPC.
 
+## Mojo kernel track
+
+**K10: sampling-based MPC (MPPI).** Roll out thousands of noisy control
+sequences through the kinematic bicycle model in parallel, score each one,
+and compute the cost-weighted average control. Compare quality and latency
+against the PID tracker at different sample counts.
+
+Puzzles first: 27 (block-wide reductions).
+
+See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+
 ## Proof of completion
 
 Cross-track error, heading error, acceleration and jerk.

@@ -25,6 +25,7 @@ and a measurable exit criterion.
 
 - [Machine setup](setup.md)
 - [Detailed roadmap](roadmap.md)
+- [Mojo kernel track](mojo-track.md): one GPU kernel or more per module
 - [How to complete a lesson](workflow.md)
 - [Lesson 01 — GPU tiling and camera-frame normalization](lessons/01-gpu-fundamentals.md)
 - [Interactive GPU tile explorer](labs/gpu_tiles.html)

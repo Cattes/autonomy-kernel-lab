@@ -13,6 +13,20 @@ Driving video with object boxes, segmentation masks, confidence, and model error
 
 Train or evaluate a small perception model against a reference; connect its preprocessing to Lesson 01.
 
+## Mojo kernel track
+
+**K3: fused resize + normalize + HWC→CHW.** Replace the Lesson 01 normalize with
+the full preprocessing a perception model needs, in one kernel. Compare
+against the same three steps run as separate kernels.
+
+**K4: pairwise box-IoU matrix.** Compute IoU for all N×N detection pairs on
+the GPU, tiling boxes through shared memory. The greedy NMS loop can stay on
+the CPU at first; measure where the crossover N is.
+
+Puzzles first: 11 (pooling), 12 (dot product), 13 (convolution), 16 (matmul).
+
+See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+
 ## Proof of completion
 
 mIoU or mAP, per-scene failures, preprocessing and inference latency.

@@ -11,9 +11,10 @@ pixi run mojo --version
 Go through the official GPU intro tutorial:
 https://max.modular.com/stable/gpu/intro-tutorial/
 
-Then implement:
-- `lesson01/vector_add.mojo` (follow tutorial, verify real GPU output)
-- `lesson01/normalize.mojo` (your exercise, match Python reference)
+Then follow the [Mojo kernel track](../docs/mojo-track.md): kernels K1–K12,
+one folder per lesson (`lesson01/`, `lesson02/`, ...). Lesson 01 starts with:
+- `lesson01/vector_add.mojo` (K1: follow tutorial, verify real GPU output)
+- `lesson01/normalize.mojo` (K2: your exercise, match Python reference)
 - A measured benchmark comparing end-to-end vs kernel-only execution.
 
 Mojo and MAX GPU APIs are evolving quickly. Keep the actual working kernel
@@ -40,5 +41,9 @@ Mojo 1.x gotchas if you read older blog posts or examples:
 - Standard library imports are prefixed with `std.`: `from std.sys import has_accelerator`
 - GPU APIs live in the `max` package: `from max.gpu import thread_idx, block_idx`,
   `from max.gpu.host import DeviceContext`
+- Atomics: `from std.atomic import Atomic`; int32 and float32
+  `Atomic.fetch_add` both work on the M2
+- `UnsafePointer` is deprecated in favor of `Pointer` (it still compiles,
+  with a warning)
 - `def` no longer implies `raises`; write `def main() raises:` when calling
   anything that can fail (e.g. creating a `DeviceContext`)

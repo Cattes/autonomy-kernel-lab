@@ -3,16 +3,19 @@
 The course adds to **one growing prototype**, with one visual experiment and one
 measurement package per module.
 
-| Weeks | Subsystem | Visual lab | Exit evidence |
-|---|---|---|---|
-| 1–3 | GPU fundamentals | Animated tiles, memory layout, pipeline timing | 3 kernels, correctness tests, timing methodology |
-| 4–6 | Camera perception | Video masks, boxes, confidence, error inspection | mIoU or mAP + latency |
-| 7–9 | Geometry, LiDAR, fusion, tracking | Raw point cloud → calibrated camera overlay → BEV → tracks | Reprojection + tracking / localization metrics |
-| 10–12 | Prediction | Agent histories and alternative futures | ADE/FDE and scenario breakdown |
-| 13–15 | Planning | Candidate trajectories, costs, risk visualizer | Collision/off-road/progress/comfort |
-| 16–18 | Control | Bicycle model animation and controller telemetry | Tracking error, jerk, acceleration |
-| 19–21 | Simulation/evaluation | Scenario timeline and failure heatmap | Fixed reproducible safety evaluation |
-| 22–24 | Runtime/capstone | Synchronized decision and runtime profiler | End-to-end performance report |
+| Weeks | Subsystem | Visual lab | Mojo kernels | Exit evidence |
+|---|---|---|---|---|
+| 1–3 | GPU fundamentals | Animated tiles, memory layout, pipeline timing | K1 vector add, K2 frame normalize | Kernels match reference, timing methodology |
+| 4–6 | Camera perception | Video masks, boxes, confidence, error inspection | K3 fused preprocessing, K4 IoU matrix | mIoU or mAP + latency |
+| 7–9 | Geometry, LiDAR, fusion, tracking | Raw point cloud → calibrated camera overlay → BEV → tracks | K5 point transform/projection, K6 BEV rasterization | Reprojection + tracking / localization metrics |
+| 10–12 | Prediction | Agent histories and alternative futures | K7 batched rollout, K8 ADE/FDE reductions | ADE/FDE and scenario breakdown |
+| 13–15 | Planning | Candidate trajectories, costs, risk visualizer | K9 trajectory costs (+ MAX custom op) | Collision/off-road/progress/comfort |
+| 16–18 | Control | Bicycle model animation and controller telemetry | K10 MPPI rollouts | Tracking error, jerk, acceleration |
+| 19–21 | Simulation/evaluation | Scenario timeline and failure heatmap | K11 batched scenario stepping | Fixed reproducible safety evaluation |
+| 22–24 | Runtime/capstone | Synchronized decision and runtime profiler | K12 fused, GPU-resident pipeline | End-to-end performance report |
+
+The [Mojo kernel track](mojo-track.md) has the concepts each kernel teaches,
+the GPU Puzzles to do first, and what works on the M2.
 
 ## Lesson release rule
 
@@ -40,7 +43,7 @@ Sensor observation
                               |
                  Closed-loop replay and metrics
 
-      GPU kernels optimize measured bottlenecks across the stages.
+      Mojo GPU kernels (K1–K12) accelerate each stage, measured end to end.
 ```
 
 Waymax supplies structured scene-state simulation; it is not a replacement

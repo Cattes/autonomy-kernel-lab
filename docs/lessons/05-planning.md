@@ -13,6 +13,20 @@ Multiple candidate trajectories, collision zones, cost components, and selected 
 
 Implement rule-based trajectory generation and scoring; investigate learned scoring.
 
+## Mojo kernel track
+
+**K9: trajectory cost evaluation.** Score K candidate trajectories × T
+timesteps against M obstacles (collision distance, off-road, comfort) in one
+kernel, then pick the best with a reduction. Find the K at which the GPU
+beats NumPy end to end.
+
+Then expose K9 to the Python planner as a **MAX custom op**, so Python calls
+your kernel directly.
+
+Puzzles first: 16 (tiled matmul), 17 (custom op), 19 (attention op).
+
+See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+
 ## Proof of completion
 
 Collision/off-road/progress/comfort on deterministic scenarios.

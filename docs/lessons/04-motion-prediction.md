@@ -13,6 +13,19 @@ Past tracks and animated competing future trajectories with probabilities.
 
 Start with constant velocity and fit a small sequence predictor using limited Waymo Motion scenes.
 
+## Mojo kernel track
+
+**K7: batched trajectory rollout.** Roll out every agent × every predicted mode
+over the horizon in parallel (constant velocity first, then your model's
+outputs).
+
+**K8: metrics on the GPU.** Compute ADE/FDE per mode, minADE/minFDE per agent,
+and a softmax over mode scores using warp- and block-level reductions.
+
+Puzzles first: 15 (axis sum), 18 (softmax), 24–26 (warp operations).
+
+See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+
 ## Proof of completion
 
 ADE/FDE and minADE/minFDE on held-out scenes; inspect missed modes.

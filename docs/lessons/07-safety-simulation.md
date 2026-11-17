@@ -13,6 +13,17 @@ Scenario timeline, edge-case categories, heatmap of failures and near misses.
 
 Run a repeatable set of cut-in, occlusion, yielding and sensor degradation scenarios.
 
+## Mojo kernel track
+
+**K11: batched scenario stepping.** Step many scenarios at once, one thread
+block per scenario, including collision checks. Measure how divergent
+behavior (scenarios ending at different times) affects throughput, and how
+memory alignment affects it.
+
+Puzzles first: 35 (memory alignment).
+
+See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+
 ## Proof of completion
 
 Per-category outcomes; show one measurable regression and improvement.

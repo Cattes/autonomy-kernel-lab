@@ -13,6 +13,21 @@ materials and exercises will be written after the preceding milestone.
 
 Transform points across LiDAR/ego/camera frames, rasterize BEV, then implement a tracker.
 
+## Mojo kernel track
+
+**K5: point-cloud transform + projection.** Apply the LiDAR→ego→camera 4×4
+transforms and pinhole projection to every point. Try array-of-structs vs
+structure-of-arrays layouts and measure the difference.
+
+**K6: BEV rasterization.** Scatter points into a bird's-eye-view grid using
+atomic adds (point count and mean intensity per cell), then compact the
+occupied cells with a prefix sum. Measure how atomic contention changes with
+grid resolution.
+
+Puzzles first: 14 (prefix sum), 27 (block-wide operations and histogram binning).
+
+See the [Mojo kernel track](../mojo-track.md) for the rules every kernel follows.
+
 ## Proof of completion
 
 Reprojection error, track ID switches, and pose error on tiny scenarios.
