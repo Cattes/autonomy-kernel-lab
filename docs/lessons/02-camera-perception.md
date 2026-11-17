@@ -12,6 +12,10 @@ Driving video with object boxes, segmentation masks, confidence, and model error
 
 Train or evaluate a small perception model against a reference; feed it frames preprocessed by your Lesson 01 Mojo code.
 
+## Data
+
+[nuScenes mini](../datasets.md#nuscenes-mini) camera images (six cameras, 1600×900), with the 3D boxes projected into each image as ground truth.
+
 ## Mojo you'll learn
 
 - **Traits and generics:** define an image-operation trait so resize,
@@ -55,6 +59,6 @@ mIoU or mAP, per-scene failures, preprocessing and inference latency.
 
 ## Constraints
 
-Keep the first iteration synthetic or very small. Add large public datasets
-only when the reference is proven. Do not use visual correctness as a
+Keep the first iteration synthetic or very small, and move to the course
+datasets only when the reference is proven. Do not use visual correctness as a
 substitute for numerical testing.

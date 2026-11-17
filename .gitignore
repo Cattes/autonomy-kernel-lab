@@ -13,6 +13,9 @@ __mojocache__/
 *.mojopkg
 *.so
 data/raw/
+data/nuscenes/
+data/nuscenes.partial/
+data/av2/
 data/processed/
 outputs/
 *.pt

@@ -55,6 +55,18 @@ pixi run test           # Mojo tests, then Python bindings + pytest
 pixi run docs           # course site at http://127.0.0.1:8000
 ```
 
+## 4. Get the data (before Lesson 02)
+
+Lesson 01 needs no data. Before Lesson 02, create a free
+[nuScenes account](https://www.nuscenes.org/sign-up), then:
+
+```bash
+pixi run fetch-data   # nuScenes mini (4.2 GB download) + 200 Argoverse 2 scenarios
+pixi run check-data
+```
+
+See [Datasets](datasets.md) for licences, formats and options.
+
 ## Everyday commands
 
 | Command | What it does |
@@ -64,6 +76,8 @@ pixi run docs           # course site at http://127.0.0.1:8000
 | `pixi run build-py` | Compile `bindings/autonomy_py.mojo` so Python can `import autonomy_py` |
 | `pixi run mojo run -I . file.mojo` | Run any Mojo file that imports `autonomy` |
 | `pixi run bench` | The preprocessing benchmark |
+| `pixi run fetch-data` | Download the course datasets into `data/` |
+| `pixi run check-data` | Check the datasets are complete and readable |
 | `pixi run docs` | Serve the course site locally |
 | `pixi shell` | A shell with `mojo`, `python` and `pytest` on the PATH |
 
@@ -73,7 +87,7 @@ When a new stable MAX ships, bump the `max` pin deliberately.
 
 ## Resource limits (16 GB unified RAM)
 
-- Start with synthetic inputs and short (10–30 s) real scenes.
+- Start with synthetic inputs, then the course's small datasets (about 5 GB on disk).
 - Load one sensor modality at a time when datasets are large.
 - Downsample point clouds for exploration; keep an untouched sample elsewhere.
 - 3D viewers, ML training and GPU kernels all share the same unified memory.

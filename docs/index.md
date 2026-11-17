@@ -28,6 +28,7 @@ a NumPy reference to check it against, and a measurable exit criterion.
 - [Machine setup](setup.md)
 - [Mojo learning path](mojo-track.md): what Mojo you learn when, and Mojo 1.2 notes
 - [Detailed roadmap](roadmap.md)
+- [Datasets](datasets.md): nuScenes mini and Argoverse 2, and how to download them
 - [How to complete a lesson](workflow.md)
 - [Lesson 01: Mojo foundations, from one pixel to the GPU](lessons/01-mojo-foundations.md)
 - [Interactive GPU tile explorer](labs/gpu_tiles.html)
@@ -36,7 +37,7 @@ a NumPy reference to check it against, and a measurable exit criterion.
 ## Course rules
 
 - **Mojo first.** The stack is Mojo; Python checks it, visualizes it and trains models.
-- Prefer **tiny reproducible scenes** over huge datasets.
+- Prefer **small real datasets and tiny reproducible scenes** over huge datasets.
 - Run real **GPU experiments** on the M2 and keep reference implementations.
 - Distinguish **educational animations** from measurements on real hardware.
 - Keep sensor data, safety metrics and failure cases visible.

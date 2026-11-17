@@ -50,11 +50,24 @@ Sensor observation
       references; GPU kernels (K1–K12) accelerate the hot spots.
 ```
 
-Waymax supplies structured scene-state simulation; it is not a replacement
-for a photorealistic camera/LiDAR renderer. We will initially develop camera
-perception and Waymax simulation as separate exercises.
+## Data
 
-Research references:
-- https://waymo.com/open/
-- https://github.com/waymo-research/waymax
+The course uses two small, real datasets; see [Datasets](datasets.md) for
+licences, formats and how to download them with `pixi run fetch-data`.
+
+| Dataset | Used in |
+|---|---|
+| [nuScenes mini](datasets.md#nuscenes-mini): 10 scenes of camera, LiDAR, radar, calibration and 3D boxes | 02 camera perception, 03 LiDAR, fusion and tracking |
+| [Argoverse 2 motion forecasting](datasets.md#argoverse-2-motion-forecasting): agent tracks and lane maps | 04 prediction, 05 planning, 06 control, 07 simulation |
+
+The closed-loop simulator for modules 06–08 is your own Mojo code (a
+kinematic bicycle model stepping replayed scenarios), not a photorealistic
+renderer. [Waymax](https://github.com/waymo-research/waymax) and the
+[Waymo Open Dataset](https://waymo.com/open/) remain optional stretch goals:
+they need a licence agreement, are large for 16 GB, and run mostly on the
+CPU on a Mac.
+
+References:
+- https://www.nuscenes.org/nuscenes
+- https://argoverse.github.io/user-guide/datasets/motion_forecasting.html
 - https://max.modular.com/stable/gpu/intro-tutorial/

@@ -10,7 +10,11 @@ Past tracks and animated competing future trajectories with probabilities.
 
 ## Autonomy objective
 
-Start with constant velocity and fit a small sequence predictor using limited Waymo Motion scenes.
+Start with constant velocity, then fit a small sequence predictor on Argoverse 2 scenarios.
+
+## Data
+
+[Argoverse 2 motion forecasting](../datasets.md#argoverse-2-motion-forecasting): 5 s of observed agent tracks and 6 s of ground-truth future per scenario, plus the lane map. Start with the 200 scenarios `pixi run fetch-data` downloads.
 
 ## Mojo you'll learn
 
@@ -52,6 +56,6 @@ ADE/FDE and minADE/minFDE on held-out scenes; inspect missed modes.
 
 ## Constraints
 
-Keep the first iteration synthetic or very small. Add large public datasets
-only when the reference is proven. Do not use visual correctness as a
+Keep the first iteration synthetic or very small, and move to the course
+datasets only when the reference is proven. Do not use visual correctness as a
 substitute for numerical testing.

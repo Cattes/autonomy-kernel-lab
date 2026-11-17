@@ -12,6 +12,10 @@ Multiple candidate trajectories, collision zones, cost components, and selected 
 
 Implement rule-based trajectory generation and scoring; investigate learned scoring.
 
+## Data
+
+[Argoverse 2](../datasets.md#argoverse-2-motion-forecasting) lane centerlines, drivable areas and other agents' tracks as planning scenarios, alongside synthetic ones.
+
 ## Mojo you'll learn
 
 - **`comptime if` / `comptime for`:** unroll cost terms and specialize the
@@ -51,6 +55,6 @@ Collision/off-road/progress/comfort on deterministic scenarios.
 
 ## Constraints
 
-Keep the first iteration synthetic or very small. Add large public datasets
-only when the reference is proven. Do not use visual correctness as a
+Keep the first iteration synthetic or very small, and move to the course
+datasets only when the reference is proven. Do not use visual correctness as a
 substitute for numerical testing.

@@ -12,6 +12,10 @@
 
 Transform points across LiDAR/ego/camera frames, rasterize BEV, then implement a tracker.
 
+## Data
+
+[nuScenes mini](../datasets.md#nuscenes-mini): `LIDAR_TOP` sweeps, camera images, sensor calibration and ego poses for the transforms, and annotated boxes with track IDs for scoring the tracker.
+
 ## Mojo you'll learn
 
 - **Operator overloading and value semantics:** `Vec3`, `Mat4` and `Pose` as
@@ -56,6 +60,6 @@ Reprojection error, track ID switches, and pose error on tiny scenarios.
 
 ## Constraints
 
-Keep the first iteration synthetic or very small. Add large public datasets
-only when the reference is proven. Do not use visual correctness as a
+Keep the first iteration synthetic or very small, and move to the course
+datasets only when the reference is proven. Do not use visual correctness as a
 substitute for numerical testing.

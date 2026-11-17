@@ -25,6 +25,7 @@ pixi install --all --locked
 pixi run check-gpu      # GPU: Apple M2 | API: metal
 pixi run test           # Mojo tests + Python checks of the Mojo code
 pixi run docs           # course site at http://127.0.0.1:8000
+pixi run fetch-data     # before Lesson 02: nuScenes mini + Argoverse 2 (needs a free nuScenes account)
 ```
 
 See [docs/setup.md](docs/setup.md) for details and troubleshooting, and
@@ -41,7 +42,7 @@ See [docs/setup.md](docs/setup.md) for details and troubleshooting, and
 - `scripts/` — benchmarks, test runner, GPU check
 - `experiments/` — throwaway Mojo programs (tutorials, puzzles, probes)
 - `docs/` — course site: lessons, roadmap, interactive labs
-- `data/` — instructions for fetching small samples; datasets are never committed
+- `data/` — downloaded datasets (`pixi run fetch-data`), never committed; see `docs/datasets.md`
 - `COURSE_PROGRESS.md` — milestones, kernel tracker, experiment log
 - `.github/workflows/` — CI (Mojo + Python tests on Linux CPU) and site publishing
 
@@ -64,7 +65,7 @@ Use an issue titled `Lesson NN: <topic>` and a branch such as `lesson/01-mojo-fo
 GitHub Actions run the Mojo and Python tests on Linux CPUs. **GPU kernel tests run
 locally on the M2**; they skip themselves in CI. Cloud NVIDIA checks are added only when needed.
 
-For each lesson, keep input artifacts small; do not commit licensed Waymo datasets,
+For each lesson, keep input artifacts small; do not commit dataset files (nuScenes, Argoverse 2),
 trained model checkpoints, credentials, or large binary captures.
 
 ## Scope and safety

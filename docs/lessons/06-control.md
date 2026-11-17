@@ -12,6 +12,10 @@ Animated bicycle model, target vs actual path, steering and jerk timeseries.
 
 Implement a kinematic bicycle simulator, PID tracker, and optionally small MPC.
 
+## Data
+
+Synthetic reference paths first, then [Argoverse 2](../datasets.md#argoverse-2-motion-forecasting) lane centerlines as real road geometry to track.
+
 ## Mojo you'll learn
 
 - **Functions as parameters and closures:** pass dynamics models and
@@ -48,6 +52,6 @@ Cross-track error, heading error, acceleration and jerk.
 
 ## Constraints
 
-Keep the first iteration synthetic or very small. Add large public datasets
-only when the reference is proven. Do not use visual correctness as a
+Keep the first iteration synthetic or very small, and move to the course
+datasets only when the reference is proven. Do not use visual correctness as a
 substitute for numerical testing.

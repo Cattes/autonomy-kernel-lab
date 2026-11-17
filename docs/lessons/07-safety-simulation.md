@@ -12,6 +12,10 @@ Scenario timeline, edge-case categories, heatmap of failures and near misses.
 
 Run a repeatable set of cut-in, occlusion, yielding and sensor degradation scenarios.
 
+## Data
+
+Scenarios replayed from [Argoverse 2](../datasets.md#argoverse-2-motion-forecasting) tracks and maps, plus synthetic edge cases (cut-ins, occlusions) you generate.
+
 ## Mojo you'll learn
 
 - **Packaging:** build `autonomy` into a `.mojopkg` with `mojo precompile`
@@ -47,6 +51,6 @@ Per-category outcomes; show one measurable regression and improvement.
 
 ## Constraints
 
-Keep the first iteration synthetic or very small. Add large public datasets
-only when the reference is proven. Do not use visual correctness as a
+Keep the first iteration synthetic or very small, and move to the course
+datasets only when the reference is proven. Do not use visual correctness as a
 substitute for numerical testing.

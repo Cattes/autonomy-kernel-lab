@@ -1,12 +1,20 @@
-# Data policy
+# Data
 
-Do not commit Waymo Open Dataset or other large/licensed datasets here.
+Datasets live here but are **never committed**. Download them with:
 
-- `raw/` — unmodified user-downloaded data (gitignored).
-- `processed/` — cached and derived tensors (gitignored).
-- `../outputs/` — local model outputs and figures (gitignored).
+```bash
+pixi run fetch-data    # nuScenes mini + 200 Argoverse 2 scenarios
+pixi run check-data    # confirm they are complete and readable
+```
 
-Lesson 01 uses **synthetic** camera frames, which require no downloads.
-Later lessons link to the official licensing terms and use tiny scene subsets.
+| Folder | Contents |
+|---|---|
+| `nuscenes/` | nuScenes v1.0-mini: `v1.0-mini/` metadata tables, `samples/` keyframes, `sweeps/` intermediate frames, `maps/` |
+| `av2/motion-forecasting/<split>/<scenario_id>/` | Argoverse 2 scenario tracks (`.parquet`) and map (`.json`) |
+| `raw/` | Download archives (removed after extraction unless `--keep-archive`) |
+| `processed/` | Your cached, derived arrays |
 
-Waymo Open Dataset: https://waymo.com/open/
+All of these are gitignored. Both datasets are licensed CC BY-NC-SA 4.0 for
+non-commercial use; nuScenes also requires an account. See
+[docs/datasets.md](../docs/datasets.md) for licences, file formats and
+coordinate frames.

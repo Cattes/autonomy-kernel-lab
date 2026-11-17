@@ -12,6 +12,8 @@ python = "3.12.*"
 numpy = ">=1.26,<3"
 pytest = ">=8,<10"
 zensical = ">=0.1"
+pyarrow = ">=26.0.1,<27"
+pillow = ">=13.0.0,<14"
 
 [pypi-dependencies]
 # Python reference implementations, data loading and visualization helpers.
@@ -43,5 +45,7 @@ test-mojo = "python scripts/run_mojo_tests.py"
 test-py = { cmd = "pytest -q", depends-on = ["build-py"] }
 test = { depends-on = ["test-mojo", "test-py"] }
 bench = { cmd = "python scripts/benchmark_preprocess.py", depends-on = ["build-py"] }
+fetch-data = "python scripts/fetch_data.py"
+check-data = "python scripts/check_data.py"
 docs = "zensical serve"
 docs-build = "zensical build --clean"
