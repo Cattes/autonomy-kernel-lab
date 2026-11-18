@@ -6,3 +6,11 @@ site_dir = "site"
 use_directory_urls = false
 # After creating the GitHub repository, optionally set:
 site_url = "https://cattes.github.io/autonomy-kernel-lab/"
+
+# Math: pymdownx.arithmatex (on by default) marks up TeX; KaTeX renders it.
+extra_javascript = [
+  "javascripts/katex.js",
+  "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js",
+  "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js",
+]
+extra_css = ["https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"]
